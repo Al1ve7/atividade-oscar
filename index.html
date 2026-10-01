@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LUXURY - Haute Couture & High Jewelry</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen flex flex-col font-sans">
+
+  <!-- NAVBAR -->
+  <header class="bg-slate-900 text-white fixed top-0 w-full z-30 h-16 flex items-center justify-between px-6 shadow-md">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center font-bold text-slate-900 text-xs">VIP</div>
+      <button onclick="toggleDrawer()" class="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1.5 rounded border border-slate-700">Ver Perfil</button>
+    </div>
+    <div class="hidden md:flex gap-6 text-xs uppercase font-semibold text-gray-300 tracking-wider">
+      <a href="#" class="hover:text-amber-400 transition">Maison</a>
+      <a href="#" class="hover:text-amber-400 transition">Atelier</a>
+      <a href="#" class="hover:text-amber-400 transition">Privé</a>
+    </div>
+    <button onclick="toggleModal()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs px-4 py-1.5 rounded transition">Login VIP</button>
+  </header>
+
+  <!-- DRAWER LATERAL (WISHLIST) -->
+  <aside id="drawer" class="fixed top-0 left-0 w-80 h-full bg-slate-900 text-white z-50 transform -translate-x-full transition-transform duration-300 p-6 flex flex-col justify-between shadow-2xl">
+    <div>
+      <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-3">
+        <h2 class="font-bold text-amber-400 text-sm uppercase tracking-wider">Maison VIP - Wishlist</h2>
+        <button onclick="toggleDrawer()" class="text-gray-400 hover:text-white font-bold text-xl">&times;</button>
+      </div>
+      <h3 class="text-xs font-bold text-gray-400 uppercase mb-3 tracking-widest">Coleção Selecionada</h3>
+      <div id="wishlist-container" class="space-y-3 text-xs"></div>
+    </div>
+  </aside>
+  <div id="overlay" onclick="toggleDrawer()" class="fixed inset-0 bg-black/60 z-40 hidden backdrop-blur-sm"></div>
+
+  <!-- MODAL DE LOGIN -->
+  <div id="modal" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center hidden backdrop-blur-sm">
+    <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md relative">
+      <button onclick="toggleModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-700 font-bold text-lg">&times;</button>
+      <h1 class="text-2xl font-bold text-center text-slate-900 mb-2 font-serif">LUXURY PRIVATE</h1>
+      <p class="text-xs text-center text-gray-500 mb-6 uppercase tracking-wider">Acesso Exclusivo para Membros VIP</p>
+      <form onsubmit="handleLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">E-mail VIP</label>
+          <input type="email" required class="w-full mt-1 p-2.5 border rounded-md text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">Chave de Acesso</label>
+          <input type="password" required class="w-full mt-1 p-2.5 border rounded-md text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+        </div>
+        <button type="submit" class="w-full bg-slate-900 text-amber-400 py-3 rounded-md hover:bg-slate-800 text-xs font-bold uppercase tracking-widest transition">Entrar no Salon</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- GRID DE PRODUTOS -->
+  <main class="max-w-7xl mx-auto px-6 pt-24 pb-12 flex-1 w-full">
+    <div class="flex justify-between items-end mb-8 border-b border-gray-300 pb-4">
+      <div>
+        <span class="text-xs font-bold text-amber-600 uppercase tracking-widest">Haute Couture & Fine Jewelry</span>
+        <h1 class="text-2xl font-serif font-bold text-slate-900 uppercase tracking-wider">Catálogo de Peças Exclusivas</h1>
+      </div>
+      <span class="text-xs text-gray-500 font-semibold uppercase">10 Edições Limitadas</span>
+    </div>
+
+    <div id="grid-produtos" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+  </main>
+
+  <script>
+    // Função auxiliar para fallback local + remoto
+    const getImgUrl = (localPath, fallbackUrl) => {
+      return localPath;
+    };
+
+    const produtosPadrao = [
+      { id: 'p1', marca: 'Gucci', nome: 'Jaqueta Bomber Heritage Monogram GG', preco: 48500, img: 'img/Gucci.webp', fallback: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&q=80' },
+      { id: 'p2', marca: 'Prada', nome: 'Bolsa Tote Leather Edition Royale', preco: 32000, img: 'img/Prada.webp', fallback: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=600&q=80' },
+      { id: 'p3', marca: 'Dior', nome: 'Vestido Haute Couture Bordado Dourado', preco: 78000, img: 'img/vestido.webp', fallback: 'https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=600&q=80' },
+      { id: 'p4', marca: 'Cartier', nome: 'Relógio Ballon Bleu Automatic Stainless Steel', preco: 38400, img: 'img/cartier.webp', fallback: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=600&q=80' },
+      { id: 'p5', marca: 'Christian Louboutin', nome: 'Scarpin High Heel Red Sole Classic', preco: 21500, img: 'img/louboutin.jpg', fallback: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=600&q=80' },
+      { id: 'p6', marca: 'Rolex', nome: 'Relógio Submariner Date Blue Dial', preco: 289000, img: 'img/rolex.jpg', fallback: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80' },
+      { id: 'p7', marca: 'Moncler', nome: 'Jaqueta Doudoune Hooded Down Jacket', preco: 34500, img: 'img/moncler.jpg', fallback: 'https://images.unsplash.com/photo-1544441893-675973e31985?w=600&q=80' },
+      { id: 'p8', marca: 'Chanel', nome: 'Parfum Chance Eau Tendre Flacon', preco: 42000, img: 'img/chanel.jpg', fallback: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=600&q=80' },
+      { id: 'p9', marca: 'Burberry', nome: 'Suéter Check Pattern Cashmere', preco: 12400, img: 'img/burberry.jpg', fallback: 'https://images.unsplash.com/photo-1608256246200-53e635b5b65f?w=600&q=80' },
+      { id: 'p10', marca: 'Louis Vuitton', nome: 'Bolsa Monogram Empreinte Leather', preco: 58500, img: 'img/lv.jpg', fallback: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&q=80' }
+    ];
+
+    let wishlistIds = [];
+
+    async function carregarDados() {
+      renderGrid(produtosPadrao);
+
+      try {
+        const resWishlist = await fetch('/api/wishlist');
+        if (resWishlist.ok) {
+          const wishlist = await resWishlist.json();
+          wishlistIds = wishlist.map(w => w.id || w.productId);
+          renderWishlist(wishlist);
+        }
+      } catch (err) {
+        console.warn("API offline. Mantendo exibição dos produtos.");
+      }
+    }
+
+    function renderGrid(produtos) {
+      const grid = document.getElementById('grid-produtos');
+      if (!grid) return;
+
+      grid.innerHTML = produtos.map((p) => {
+        const isFav = wishlistIds.includes(p.id);
+
+        return `
+          <div class="bg-white rounded-lg p-4 border border-slate-200 shadow-sm flex flex-col justify-between relative group hover:shadow-xl hover:-translate-y-1 transition duration-300">
+            <button onclick="toggleFav('${p.id}')" class="absolute top-3 right-3 z-10 ${isFav ? 'text-red-500' : 'text-gray-300'} hover:text-red-500 text-xl font-bold bg-white/90 rounded-full w-9 h-9 flex items-center justify-center shadow-md transition">♥</button>
+            
+            <div class="w-full h-52 bg-slate-50 rounded mb-4 overflow-hidden relative border border-slate-100 flex items-center justify-center">
+              <img src="${p.img}" alt="${p.nome}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.onerror=null; this.src='${p.fallback}';">
+              <span class="absolute bottom-2 left-2 bg-slate-900/90 text-amber-400 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded shadow">${p.marca}</span>
+            </div>
+
+            <div class="flex flex-col justify-between flex-1">
+              <h3 class="font-bold text-xs text-slate-800 leading-snug line-clamp-2">${p.nome}</h3>
+              <div class="mt-3 pt-2 border-t border-slate-100 flex justify-between items-center">
+                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Valor Estimado</span>
+                <p class="text-sm text-slate-900 font-extrabold">R$ ${Number(p.preco).toLocaleString('pt-BR')}</p>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderWishlist(itens) {
+      const container = document.getElementById('wishlist-container');
+      if (!container) return;
+
+      if (!itens || itens.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 italic text-center py-4">Nenhuma peça reservada na sua wishlist.</p>';
+        return;
+      }
+      container.innerHTML = itens.map(i => {
+        const itemOriginal = produtosPadrao.find(p => p.id === (i.id || i.productId)) || i;
+        return `
+          <div class="p-3 bg-slate-800/80 rounded-lg flex justify-between items-center border border-slate-700/50">
+            <div class="pr-2">
+              <p class="text-amber-400 font-bold text-[11px] uppercase">${itemOriginal.marca || i.marca}</p>
+              <p class="text-gray-200 text-xs truncate max-w-[170px]">${itemOriginal.nome || i.nome}</p>
+            </div>
+            <span class="text-amber-400 font-bold text-xs">R$ ${Number(itemOriginal.preco || i.preco).toLocaleString('pt-BR')}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function toggleFav(id) {
+      if (wishlistIds.includes(id)) {
+        wishlistIds = wishlistIds.filter(item => item !== id);
+      } else {
+        wishlistIds.push(id);
+      }
+
+      try {
+        await fetch('/api/wishlist/toggle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ productId: id, id: id })
+        });
+      } catch (e) {
+        console.log("Favorito alterado localmente.");
+      }
+
+      const itensWishlist = produtosPadrao.filter(p => wishlistIds.includes(p.id));
+      renderWishlist(itensWishlist);
+      renderGrid(produtosPadrao);
+    }
+
+    function toggleDrawer() {
+      document.getElementById('drawer').classList.toggle('-translate-x-full');
+      document.getElementById('overlay').classList.toggle('hidden');
+    }
+
+    function toggleModal() {
+      document.getElementById('modal').classList.toggle('hidden');
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      alert('Bem-vindo ao Salon Privé LUXURY!');
+      toggleModal();
+    }
+
+    document.addEventListener('DOMContentLoaded', carregarDados);
+  </script>
+</body>
+</html>
